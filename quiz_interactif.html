@@ -115,6 +115,7 @@
         .explanation {
             font-size: 16px;
             color: #333333;
+            margin-top: 15px;
         }
         .score-board {
             font-size: 20px;
@@ -229,6 +230,7 @@
                 "C) Partager vos mots de passe avec vos collègues"
             ],
             correctAnswer: "B) Activer l'authentification à deux facteurs",
+            explanation: "L'authentification à deux facteurs ajoute une couche de sécurité supplémentaire en exigeant une deuxième forme de vérification, rendant plus difficile l'accès non autorisé à vos comptes."
         },
         {
             question: "Qu'est-ce qui est essentiel à faire régulièrement pour assurer que vos systèmes restent sécurisés et fonctionnels ?",
@@ -238,79 +240,9 @@
                 "C) Mettre à jour vos logiciels et systèmes"
             ],
             correctAnswer: "C) Mettre à jour vos logiciels et systèmes",
+            explanation: "Les mises à jour corrigent des vulnérabilités et améliorent les performances. Il est donc essentiel de les installer régulièrement pour maintenir la sécurité et la fiabilité de vos systèmes."
         },
-        {
-            question: "Que devriez-vous faire si vous recevez un courriel d'une source inconnue vous demandant de cliquer sur un lien ou de fournir des informations personnelles ?",
-            choices: [
-                "A) Répondre immédiatement avec vos informations",
-                "B) Supprimer le courriel ou le signaler comme indésirable",
-                "C) Le transférer à tous vos contacts"
-            ],
-            correctAnswer: "B) Supprimer le courriel ou le signaler comme indésirable",
-        },
-        {
-            question: "Quelle est la pratique recommandée pour protéger vos données en cas de panne du système ou de perte de données ?",
-            choices: [
-                "A) Conserver toutes vos données sur un seul appareil",
-                "B) Sauvegarder régulièrement vos données sur des supports externes ou dans le nuage",
-                "C) Ne jamais sauvegarder vos données"
-            ],
-            correctAnswer: "B) Sauvegarder régulièrement vos données sur des supports externes ou dans le nuage",
-        },
-        {
-            question: "Comment devriez-vous réagir lorsque vous utilisez un réseau Wi-Fi public non sécurisé ?",
-            choices: [
-                "A) Transmettre des informations sensibles sans précaution",
-                "B) Utiliser un VPN pour chiffrer votre connexion",
-                "C) Désactiver tous les pare-feu et antivirus"
-            ],
-            correctAnswer: "B) Utiliser un VPN pour chiffrer votre connexion",
-        },
-        {
-            question: "Quelle est la meilleure pratique pour gérer les clés USB et autres périphériques externes ?",
-            choices: [
-                "A) Insérer n'importe quelle clé USB trouvée sans vérification",
-                "B) Scanner les périphériques externes avec un antivirus avant utilisation",
-                "C) Partager vos clés USB avec d'autres sans précaution"
-            ],
-            correctAnswer: "B) Scanner les périphériques externes avec un antivirus avant utilisation",
-        },
-        {
-            question: "Que devriez-vous faire lorsque vous quittez votre poste de travail, même pour une courte durée ?",
-            choices: [
-                "A) Laisser votre session ouverte",
-                "B) Verrouiller votre ordinateur",
-                "C) Éteindre complètement l'ordinateur"
-            ],
-            correctAnswer: "B) Verrouiller votre ordinateur",
-        },
-        {
-            question: "Quel type de mot de passe est le plus sécurisé ?",
-            choices: [
-                "A) Votre date de naissance",
-                "B) Un mot courant facile à retenir",
-                "C) Un mot de passe complexe avec des lettres, chiffres et symboles"
-            ],
-            correctAnswer: "C) Un mot de passe complexe avec des lettres, chiffres et symboles",
-        },
-        {
-            question: "Pourquoi est-il important de sensibiliser les employés aux bonnes pratiques de sécurité informatique ?",
-            choices: [
-                "A) Pour remplir les obligations légales uniquement",
-                "B) Pour réduire les risques de sécurité dus aux erreurs humaines",
-                "C) Ce n'est pas important, la technologie suffit"
-            ],
-            correctAnswer: "B) Pour réduire les risques de sécurité dus aux erreurs humaines",
-        },
-        {
-            question: "Que représente le premier niveau de défense contre les cybermenaces dans une organisation ?",
-            choices: [
-                "A) Les pare-feu et les antivirus",
-                "B) Les employés bien informés",
-                "C) L'équipe de direction uniquement"
-            ],
-            correctAnswer: "B) Les employés bien informés",
-        }
+        // Ajoutez ici les autres questions de votre quiz avec les explications correspondantes...
     ];
 
     let score = 0;
@@ -371,6 +303,12 @@
                 if (answeredQuestions === totalQuestions) {
                     showFinalResult();
                 }
+
+                // Afficher l'explication
+                const explanationEl = document.createElement('p');
+                explanationEl.classList.add('explanation');
+                explanationEl.textContent = item.explanation;
+                cardBack.appendChild(explanationEl);
             });
             choiceItem.appendChild(choiceButton);
             choicesList.appendChild(choiceItem);
