@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz d'Hygiène TI - Interactif</title>
+    <!-- Intégration de Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Intégration de Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Styles généraux */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #002942;
+            margin: 0;
+            padding: 0;
+            color: #FFFFFF; /* Texte en blanc */
+        }
+        .quiz-container {
+            width: 90%;
+            max-width: 800px;
+            margin: 50px auto;
+            text-align: center;
+        }
+        h1 {
+            color: #FFFFFF;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        /* Styles des cartes */
+        .card {
+            perspective: 1000px;
+            margin-bottom: 40px;
+        }
+        .card-inner {
+            position: relative;
+            width: 100%;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+        }
+        .card.flip .card-inner {
+            transform: rotateY(180deg);
+        }
+        .card-front, .card-back {
+            position: relative;
+            width: 100%;
+            backface-visibility: hidden;
+            background-color: #FFFFFF; /* Cartes en blanc */
+            border-radius: 10px;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+            padding: 30px;
+            box-sizing: border-box;
+            color: #002942; /* Texte des cartes en couleur principale */
+        }
+        .card-back {
+            transform: rotateY(180deg);
+            background-color: #F0F0F0; /* Couleur légèrement différente pour l'arrière */
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+        }
+        /* Styles du contenu */
+        h2 {
+            margin-top: 0;
+            color: #CB9F36; /* Couleur or pour les titres */
+        }
+        .question-text {
+            font-size: 18px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        .question-text i {
+            margin-right: 10px;
+            color: #CB9F36;
+        }
+        .choices {
+            list-style-type: none;
+            padding: 0;
+        }
+        .choices li {
+            margin: 10px 0;
+        }
+        .choices button {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #CB9F36; /* Boutons en or */
+            color: #FFFFFF; /* Texte des boutons en blanc */
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .choices button i {
+            margin-right: 10px;
+        }
+        .choices button:hover {
+            background-color: #b08830; /* Couleur légèrement plus foncée au survol */
+        }
+        .answer {
+            font-size: 20px;
+            font-weight: 600;
+            color: #002942; /* Couleur principale pour la réponse */
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .answer i {
+            margin-right: 10px;
+            color: #28a745; /* Vert pour indiquer la bonne réponse */
+        }
+        .explanation {
+            font-size: 16px;
+            color: #333333;
+        }
+        /* Score */
+        .score-board {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #FFFFFF;
+        }
+        .score-board i {
+            color: #CB9F36;
+            margin-right: 10px;
+        }
+        /* Ajustement pour éviter le chevauchement */
+        .card {
+            overflow: hidden;
+        }
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .card.flip .card-back .answer,
+        .card.flip .card-back .explanation {
+            animation: fadeIn 0.6s ease-in;
+        }
+        /* Responsivité */
+        @media (max-width: 600px) {
+            .card-front, .card-back {
+                padding: 20px;
+            }
+            .question-text {
+                font-size: 16px;
+            }
+            .choices button {
+                font-size: 14px;
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <h1>Quiz d'Hygiène TI</h1>
+    <div class="score-board">
+        <i class="fas fa-star"></i> Score : <span id="score">0</span> / <span id="total">0</span>
+    </div>
+
+    <!-- Les cartes du quiz seront insérées ici par JavaScript -->
+
+    <div id="result" style="display: none;">
+        <h2>Résultat Final</h2>
+        <p>Vous avez obtenu un score de <span id="final-score"></span> sur <span id="final-total"></span>.</p>
+    </div>
+</div>
+
+<script>
+    const quizData = [
+        {
+            question: "Quel est le meilleur moyen de protéger vos comptes en ligne contre les accès non autorisés ?",
+            choices: [
+                "A) Utiliser le même mot de passe partout",
+                "B) Activer l'authentification à deux facteurs",
+                "C) Partager vos mots de passe avec vos collègues"
+            ],
+            correctAnswer: "B) Activer l'authentification à deux facteurs",
+            explanation: "L'authentification à deux facteurs ajoute une couche de sécurité supplémentaire en exigeant une deuxième forme de vérification, rendant plus difficile l'accès non autorisé à vos comptes."
+        },
+        {
+            question: "Qu'est-ce qui est essentiel à faire régulièrement pour assurer que vos systèmes restent sécurisés et fonctionnels ?",
+            choices: [
+                "A) Ignorer les mises à jour",
+                "B) Télécharger des logiciels de sources inconnues",
+                "C) Mettre à jour vos logiciels et systèmes"
+            ],
+            correctAnswer: "C) Mettre à jour vos logiciels et systèmes",
+            explanation: "Les mises à jour corrigent des vulnérabilités et améliorent les performances. Il est donc essentiel de les installer régulièrement pour maintenir la sécurité et la fiabilité de vos systèmes."
+        },
+        {
+            question: "Que devriez-vous faire si vous recevez un courriel d'une source inconnue vous demandant de cliquer sur un lien ou de fournir des informations personnelles ?",
+            choices: [
+                "A) Répondre immédiatement avec vos informations",
+                "B) Supprimer le courriel ou le signaler comme indésirable",
+                "C) Le transférer à tous vos contacts"
+            ],
+            correctAnswer: "B) Supprimer le courriel ou le signaler comme indésirable",
+            explanation: "Les courriels non sollicités peuvent être des tentatives de hameçonnage visant à voler vos informations personnelles. Il est important de ne pas y répondre et de les signaler."
+        },
+        {
+            question: "Quelle est la pratique recommandée pour protéger vos données en cas de panne du système ou de perte de données ?",
+            choices: [
+                "A) Conserver toutes vos données sur un seul appareil",
+                "B) Sauvegarder régulièrement vos données sur des supports externes ou dans le nuage",
+                "C) Ne jamais sauvegarder vos données"
+            ],
+            correctAnswer: "B) Sauvegarder régulièrement vos données sur des supports externes ou dans le nuage",
+            explanation: "Les sauvegardes régulières permettent de restaurer vos données en cas de perte ou de corruption, assurant ainsi la continuité de vos activités."
+        },
+        {
+            question: "Comment devriez-vous réagir lorsque vous utilisez un réseau Wi-Fi public non sécurisé ?",
+            choices: [
+                "A) Transmettre des informations sensibles sans précaution",
+                "B) Utiliser un VPN pour chiffrer votre connexion",
+                "C) Désactiver tous les pare-feu et antivirus"
+            ],
+            correctAnswer: "B) Utiliser un VPN pour chiffrer votre connexion",
+            explanation: "Les réseaux Wi-Fi publics peuvent être vulnérables aux interceptions de données. L'utilisation d'un VPN sécurise votre connexion en chiffrant les données transmises."
+        },
+        {
+            question: "Quelle est la meilleure pratique pour gérer les clés USB et autres périphériques externes ?",
+            choices: [
+                "A) Insérer n'importe quelle clé USB trouvée sans vérification",
+                "B) Scanner les périphériques externes avec un antivirus avant utilisation",
+                "C) Partager vos clés USB avec d'autres sans précaution"
+            ],
+            correctAnswer: "B) Scanner les périphériques externes avec un antivirus avant utilisation",
+            explanation: "Les périphériques externes peuvent contenir des logiciels malveillants. Il est donc important de les analyser avant de les utiliser pour éviter d'infecter votre système."
+        },
+        {
+            question: "Que devriez-vous faire lorsque vous quittez votre poste de travail, même pour une courte durée ?",
+            choices: [
+                "A) Laisser votre session ouverte",
+                "B) Verrouiller votre ordinateur",
+                "C) Éteindre complètement l'ordinateur"
+            ],
+            correctAnswer: "B) Verrouiller votre ordinateur",
+            explanation: "Verrouiller votre ordinateur empêche l'accès non autorisé à vos informations pendant votre absence, protégeant ainsi vos données professionnelles."
+        },
+        {
+            question: "Quel type de mot de passe est le plus sécurisé ?",
+            choices: [
+                "A) Votre date de naissance",
+                "B) Un mot courant facile à retenir",
+                "C) Un mot de passe complexe avec des lettres, chiffres et symboles"
+            ],
+            correctAnswer: "C) Un mot de passe complexe avec des lettres, chiffres et symboles",
+            explanation: "Les mots de passe complexes sont plus difficiles à deviner ou à casser, augmentant ainsi la sécurité de vos comptes."
+        },
+        {
+            question: "Pourquoi est-il important de sensibiliser les employés aux bonnes pratiques de sécurité informatique ?",
+            choices: [
+                "A) Pour remplir les obligations légales uniquement",
+                "B) Pour réduire les risques de sécurité dus aux erreurs humaines",
+                "C) Ce n'est pas important, la technologie suffit"
+            ],
+            correctAnswer: "B) Pour réduire les risques de sécurité dus aux erreurs humaines",
+            explanation: "La majorité des incidents de sécurité proviennent d'erreurs humaines. Sensibiliser les employés aide à prévenir ces risques en adoptant les bonnes pratiques."
+        },
+        {
+            question: "Que représente le premier niveau de défense contre les cybermenaces dans une organisation ?",
+            choices: [
+                "A) Les pare-feu et les antivirus",
+                "B) Les employés bien informés",
+                "C) L'équipe de direction uniquement"
+            ],
+            correctAnswer: "B) Les employés bien informés",
+            explanation: "Les employés sont le premier rempart contre les cybermenaces, car leur vigilance et leurs actions quotidiennes peuvent prévenir de nombreux incidents de sécurité."
+        }
+    ];
+
+    let score = 0;
+    let totalQuestions = quizData.length;
+    let answeredQuestions = 0;
+
+    document.getElementById('total').textContent = totalQuestions;
+
+    const quizContainer = document.querySelector('.quiz-container');
+
+    quizData.forEach((item, index) => {
+        // Créer les éléments de la carte
+        const card = document.createElement('div');
+        card.classList.add('card');
+
+        const cardInner = document.createElement('div');
+        cardInner.classList.add('card-inner');
+
+        const cardFront = document.createElement('div');
+        cardFront.classList.add('card-front');
+
+        const cardBack = document.createElement('div');
+        cardBack.classList.add('card-back');
+
+        // Contenu de la face avant
+        const questionEl = document.createElement('h2');
+        questionEl.textContent = `Question ${index + 1}`;
+
+        const questionText = document.createElement('p');
+        questionText.classList.add('question-text');
+        questionText.innerHTML = `<i class="fas fa-question-circle"></i>${item.question}`;
+
+        const choicesList = document.createElement('ul');
+        choicesList.classList.add('choices');
+
+        item.choices.forEach(choice => {
+            const choiceItem = document.createElement('li');
+            const choiceButton = document.createElement('button');
+            choiceButton.innerHTML = `<i class="fas fa-check-circle"></i>${choice}`;
+            choiceButton.addEventListener('click', () => {
+                if (choice === item.correctAnswer) {
+                    score++;
+                }
+                answeredQuestions++;
+                updateScore();
+                card.classList.add('flip');
+                // Désactiver les boutons après réponse
+                const buttons = choicesList.querySelectorAll('button');
+                buttons.forEach(btn => btn.disabled = true);
+            });
+            choiceItem.appendChild(choiceButton);
+            choicesList.appendChild(choiceItem);
+        });
+
+        cardFront.appendChild(questionEl);
+        cardFront.appendChild(questionText);
+        cardFront.appendChild(choicesList);
+
+        // Contenu de la face arrière
+        const answerEl = document.createElement('p');
+        answerEl.classList.add('answer');
+        answerEl.innerHTML = `<i class="fas fa-info-circle"></i>Réponse : ${item.correctAnswer}`;
+
+        const explanationEl = document.createElement('p');
+        explanationEl.classList.add('explanation');
+        explanationEl.textContent = item.explanation;
+
+        cardBack.appendChild(answerEl);
+        cardBack.appendChild(explanationEl);
+
+        // Assembler la carte
+        cardInner.appendChild(cardFront);
+        cardInner.appendChild(cardBack);
+        card.appendChild(cardInner);
+        quizContainer.appendChild(card);
+    });
+
+    function updateScore() {
+        document.getElementById('score').textContent = score;
+        if (answeredQuestions === totalQuestions) {
+            showFinalResult();
+        }
+    }
+
+    function showFinalResult() {
+        const resultDiv = document.getElementById('result');
+        document.getElementById('final-score').textContent = score;
+        document.getElementById('final-total').textContent = totalQuestions;
+        resultDiv.style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
